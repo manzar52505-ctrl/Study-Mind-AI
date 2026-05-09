@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My Google AI Studio App</title>
+    <script>
+      /**
+       * Extreme fix for "Uncaught TypeError: Cannot set property fetch of #<Window> which has only a getter"
+       * This happens when a library tries to assign to window.fetch in an environment where it's read-only.
+       */
+      (function() {
+        try {
+          // 1. Try to add a dummy setter to window itself if possible
+          var originalFetch = window.fetch;
+          Object.defineProperty(window, 'fetch', {
+            get: function() { return originalFetch; },
+            set: function() { console.warn('Intercepted and ignored fetch override attempt on window.'); },
+            configurable: true,
+            enumerable: true
+          });
+        } catch (e) {
+          try {
+            // 2. If that failed (likely because it's on the prototype), try the prototype
+            var proto = Object.getPrototypeOf(window);
+            if (proto) {
+              var desc = Object.getOwnPropertyDescriptor(proto, 'fetch');
+              if (desc && desc.get) {
+                Object.defineProperty(proto, 'fetch', {
+                  get: desc.get,
+                  set: function() { console.warn('Intercepted and ignored fetch override attempt on prototype.'); },
+                  configurable: true,
+                  enumerable: true
+                });
+              }
+            }
+          } catch (e2) {
+            // 3. Last ditch effort: define it on window without configurable if needed, 
+            // but we're likely out of luck if it's non-configurable.
+            console.error('Failed to fully patch fetch property.', e2);
+          }
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+

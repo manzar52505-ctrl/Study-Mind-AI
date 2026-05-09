@@ -1,0 +1,6 @@
+{
+  "name": "StudyMind AI",
+  "description": "An AI-powered study assistant for university students, featuring document chat, flashcard generation, quiz builders, and exam prediction.",
+  "requestFramePermissions": [],
+  "majorCapabilities": []
+}
